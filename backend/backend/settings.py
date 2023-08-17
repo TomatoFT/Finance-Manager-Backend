@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "messages_temp",
     "budget",
     "user",
+    "expense",
 ]
 
 MIDDLEWARE = [

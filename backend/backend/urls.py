@@ -36,4 +36,5 @@ urlpatterns = [
     # path("", include("messages_temp.urls")),
     path("budget/", include("budget.urls")),
     path("user/", include("user.urls")),
+    path("expense/", include("expense.urls")),
 ]

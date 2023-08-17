@@ -1,3 +1,4 @@
+from budget.models import Budget
 from django.db import models
 
 # Create your models here.
@@ -5,9 +6,19 @@ from django.db import models
 
 class User(models.Model):
     user_id = models.AutoField(primary_key=True)
-    user_name = models.TextField()
-    user_password = models.TextField()
-    user_email = models.EmailField()
-    user_phone = models.CharField(max_length=12)
-    # user_profile_picture = models.FilePathField(path ="media")
-    user_balance = models.PositiveIntegerField()
+    username = models.TextField()
+    password = models.TextField()
+    email = models.EmailField()
+    phone = models.CharField(max_length=12)
+    # user_balance = models.PositiveIntegerField()
+
+    def __str__(self) -> str:
+        return self.username
+
+    @property
+    def balance(self):
+        budget_list = Budget.objects.filter(user_id=self.user_id)
+        sum = 0
+        for budget in budget_list:
+            sum += budget.amount
+        return sum
