@@ -1,4 +1,5 @@
 from django.db import models
+from user.models import User
 
 
 class IncomeCategory(models.Model):
@@ -11,6 +12,7 @@ class IncomeCategory(models.Model):
 
 class Budget(models.Model):
     budget_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     budget_name = models.TextField()
     income_category_id = models.ForeignKey(IncomeCategory, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField()

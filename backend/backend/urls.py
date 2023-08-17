@@ -33,5 +33,7 @@ from rest_framework import routers
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("messagesTemp.urls")),
+    # path("", include("messages_temp.urls")),
+    path("budget/", include("budget.urls")),
+    path("user/", include("user.urls")),
 ]
