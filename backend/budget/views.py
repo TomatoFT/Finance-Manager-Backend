@@ -1,3 +1,7 @@
+import json
+import logging
+import warnings
+
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from rest_framework import status
@@ -25,10 +29,28 @@ def get_budget_details(request, budget_id):
 
 @api_view(["POST"])
 def add_budget_details(request):
-    serializers = BudgetSerializer(data=request.data)
+    logger = logging.getLogger(__name__)
+    budget_data = preprocess_budget_data(request)
+    # data_str = str(budget_data)
+    # logger.warning("DATA FROM REQUEST: %s", data_str)
+    serializers = BudgetSerializer(data=budget_data)
     if serializers.is_valid():
         serializers.save()
+    else:
+        logger.warning("________ Data is invalid ________")
     return Response(serializers.data)
+
+
+def preprocess_budget_data(request):
+    budget_data = {
+        "budget_name": request.data["budget_name"],
+        "amount": request.data["amount"],
+        "always_notify": request.data["always_notify"],
+        "user_id": request.data["user_id"],
+        "income_category_id": request.data["income_category_id"],
+    }
+
+    return budget_data
 
 
 @api_view(["PUT"])

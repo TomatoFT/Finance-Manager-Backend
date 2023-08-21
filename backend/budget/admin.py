@@ -12,13 +12,13 @@ class BudgetAdmin(admin.ModelAdmin):
         "user_id",
         "budget_name",
         "income_category_id",
-        "get_current_amount",
+        "amount",
     )
 
-    def get_current_amount(self, obj):
-        return obj.current_amount
+    # def get_current_amount(self, obj):
+    #     return obj.current_amount
 
-    get_current_amount.short_description = "Current Amount"
+    # get_current_amount.short_description = "Current Amount"
 
 
 admin.site.register(Budget, BudgetAdmin)
