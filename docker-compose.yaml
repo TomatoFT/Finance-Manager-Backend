@@ -20,17 +20,17 @@ services:
     networks:
       - test
 
-  frontend:
-    build:
-      context: ./frontend
-      # dockerfile: Dockerfile
-    environment:
-      PORT: 4200
-      # PROXY_API: http://backend:8000/
-    ports:
-      - 4200:4200
-    networks:
-      - test
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     # dockerfile: Dockerfile
+  #   environment:
+  #     PORT: 4200
+  #     # PROXY_API: http://backend:8000/
+  #   ports:
+  #     - 4200:4200
+  #   networks:
+  #     - test
 
 networks:
   test:

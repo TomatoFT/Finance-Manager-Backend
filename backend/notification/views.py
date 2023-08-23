@@ -5,26 +5,26 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Notification
-from .serializers import MessageSerializer
+from .serializers import NoticationSerializer
 
 
 @api_view(["GET"])
 def get_all_notifications_data(request):
     messages = Notification.objects.all()
-    serializers = MessageSerializer(messages, many=True)
+    serializers = NoticationSerializer(messages, many=True)
     return Response(serializers.data)
 
 
 @api_view(["GET"])
 def get_notification_data(request, notification_id):
     messages = Notification.objects.filter(notification_id=notification_id)
-    serializers = MessageSerializer(messages)
+    serializers = NoticationSerializer(messages)
     return Response(serializers.data)
 
 
 @api_view(["POST"])
 def add_notification_data(request):
-    serializers = MessageSerializer(data=request.data)
+    serializers = NoticationSerializer(data=request.data)
     if serializers.is_valid():
         serializers.save()
     return Response(serializers.data)
@@ -33,7 +33,7 @@ def add_notification_data(request):
 # @api_view(["PUT"])
 # def update_notification_data(request, notification_id):
 #     messages = Notification.objects.get(notification_id=notification_id)
-#     data = MessageSerializer(instance=messages, data=request.data)
+#     data = NoticationSerializer(instance=messages, data=request.data)
 #     print("DATA:", data)
 #     if data.is_valid():
 #         data.save()

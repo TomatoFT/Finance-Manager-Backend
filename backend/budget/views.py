@@ -1,6 +1,4 @@
-import json
 import logging
-import warnings
 
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -22,7 +20,7 @@ def get_all_budgets(request):
 
 @api_view(["GET"])
 def get_budget_details(request, budget_id):
-    budget_details = Budget.objects.filter(budget_id=budget_id)
+    budget_details = Budget.objects.filter(id=budget_id)
     serializers = BudgetSerializer(budget_details, many=True)
     return Response(serializers.data)
 
@@ -31,8 +29,6 @@ def get_budget_details(request, budget_id):
 def add_budget_details(request):
     logger = logging.getLogger(__name__)
     budget_data = preprocess_budget_data(request)
-    # data_str = str(budget_data)
-    # logger.warning("DATA FROM REQUEST: %s", data_str)
     serializers = BudgetSerializer(data=budget_data)
     if serializers.is_valid():
         serializers.save()
@@ -55,7 +51,7 @@ def preprocess_budget_data(request):
 
 @api_view(["PUT"])
 def update_budget_data(request, budget_id):
-    budget_data = Budget.objects.get(budget_id=budget_id)
+    budget_data = Budget.objects.get(id=budget_id)
     data = BudgetSerializer(instance=budget_data, data=request.data)
     print("DATA:", data)
     if data.is_valid():
@@ -67,7 +63,7 @@ def update_budget_data(request, budget_id):
 
 @api_view(["DELETE", "GET"])
 def delete_budget_data(request, budget_id):
-    item = get_object_or_404(Budget, budget_id=budget_id)
+    item = get_object_or_404(Budget, id=budget_id)
     item.delete()
     return redirect(reverse("get_all_budgets"))
 
@@ -82,9 +78,7 @@ def get_all_income_categories(request):
 
 @api_view(["GET"])
 def get_income_category_details(request, income_category_id):
-    income_category = IncomeCategory.objects.filter(
-        income_category_id=income_category_id
-    )
+    income_category = IncomeCategory.objects.filter(id=income_category_id)
     serializers = IncomeCategorySerializer(income_category, many=True)
     return Response(serializers.data)
 
@@ -99,7 +93,7 @@ def add_income_category_details(request):
 
 @api_view(["PUT"])
 def update_income_category(request, income_category_id):
-    income_category = IncomeCategory.objects.get(income_category_id=income_category_id)
+    income_category = IncomeCategory.objects.get(id=income_category_id)
     data = IncomeCategorySerializer(instance=income_category, data=request.data)
     print("DATA:", data)
     if data.is_valid():
@@ -111,6 +105,6 @@ def update_income_category(request, income_category_id):
 
 @api_view(["DELETE", "GET"])
 def delete_income_category(request, income_category_id):
-    item = get_object_or_404(IncomeCategory, income_category_id=income_category_id)
+    item = get_object_or_404(IncomeCategory, id=income_category_id)
     item.delete()
     return redirect(reverse("get_all_income_categories"))

@@ -9,9 +9,9 @@ from .models import Budget, IncomeCategory
 
 class BudgetAdmin(admin.ModelAdmin):
     list_display = (
-        "user_id",
-        "budget_name",
-        "income_category_id",
+        "user",
+        "name",
+        "income_category",
         "amount",
     )
 

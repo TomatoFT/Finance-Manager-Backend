@@ -18,7 +18,7 @@ def get_all_expenses(request):
 
 @api_view(["GET"])
 def get_expense_details(request, expense_id):
-    expense_details = Expense.objects.filter(expense_id=expense_id)
+    expense_details = Expense.objects.filter(id=expense_id)
     serializers = ExpenseSerializer(expense_details, many=True)
     return Response(serializers.data)
 
@@ -33,7 +33,7 @@ def add_expense_details(request):
 
 @api_view(["PUT"])
 def update_expense_data(request, expense_id):
-    expense_data = Expense.objects.get(expense_id=expense_id)
+    expense_data = Expense.objects.get(id=expense_id)
     data = ExpenseSerializer(instance=expense_data, data=request.data)
     print("DATA:", data)
     if data.is_valid():
@@ -45,7 +45,7 @@ def update_expense_data(request, expense_id):
 
 @api_view(["DELETE", "GET"])
 def delete_expense_data(request, expense_id):
-    item = get_object_or_404(Expense, expense_id=expense_id)
+    item = get_object_or_404(Expense, id=expense_id)
     item.delete()
     return redirect(reverse("get_all_expenses"))
 
