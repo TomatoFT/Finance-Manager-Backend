@@ -15,17 +15,17 @@ urlpatterns = [
         name="get_user",
     ),
     path(
-        "add",
+        "",
         views.add_user,
         name="add_user",
     ),
     path(
-        "update/<int:user_id>",
+        "<int:user_id>",
         views.update_user,
         name="update_user",
     ),
     path(
-        "delete/<int:user_id>",
+        "<int:user_id>",
         views.delete_user,
         name="delete_user",
     ),

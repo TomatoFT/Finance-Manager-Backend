@@ -60,9 +60,7 @@ def get_all_expense_categories(request):
 
 @api_view(["GET"])
 def get_expense_category_details(request, expense_category_id):
-    expense_category = ExpenseCategory.objects.filter(
-        expense_category_id=expense_category_id
-    )
+    expense_category = ExpenseCategory.objects.filter(id=expense_category_id)
     serializers = ExpenseCategorySerializer(expense_category, many=True)
     return Response(serializers.data)
 
@@ -77,9 +75,7 @@ def add_expense_category_details(request):
 
 @api_view(["PUT"])
 def update_expense_category(request, expense_category_id):
-    expense_category = ExpenseCategory.objects.get(
-        expense_category_id=expense_category_id
-    )
+    expense_category = ExpenseCategory.objects.get(id=expense_category_id)
     data = ExpenseCategorySerializer(instance=expense_category, data=request.data)
     print("DATA:", data)
     if data.is_valid():
@@ -91,6 +87,6 @@ def update_expense_category(request, expense_category_id):
 
 @api_view(["DELETE", "GET"])
 def delete_expense_category(request, expense_category_id):
-    item = get_object_or_404(ExpenseCategory, expense_category_id=expense_category_id)
+    item = get_object_or_404(ExpenseCategory, id=expense_category_id)
     item.delete()
     return redirect(reverse("get_all_expense_categories"))

@@ -18,7 +18,7 @@ def get_all_users_informations(request):
 
 @api_view(["GET"])
 def get_user(request, user_id):
-    user = User.objects.filter(user_id=user_id)
+    user = User.objects.filter(id=user_id)
     serializers = UserSerializers(user, many=True)
     return Response(serializers.data)
 
@@ -33,7 +33,7 @@ def add_user(request):
 
 @api_view(["PUT"])
 def update_user(request, user_id):
-    income_category = User.objects.get(user_id=user_id)
+    income_category = User.objects.get(id=user_id)
     data = UserSerializers(instance=income_category, data=request.data)
     print("DATA:", data)
     if data.is_valid():
@@ -45,6 +45,6 @@ def update_user(request, user_id):
 
 @api_view(["DELETE", "GET"])
 def delete_user(request, user_id):
-    item = get_object_or_404(User, user_id=user_id)
+    item = get_object_or_404(User, id=user_id)
     item.delete()
     return redirect(reverse("get_all_income_categories"))
