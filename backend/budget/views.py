@@ -69,15 +69,17 @@ class IncomeCategoryManagement(APIView):
         serializers = IncomeCategorySerializer(income_categories_list, many=True)
         return Response(serializers.data)
 
-    def get(self, request, income_category_id):
-        income_category = IncomeCategory.objects.filter(id=income_category_id)
-        serializers = IncomeCategorySerializer(income_category, many=True)
-        return Response(serializers.data)
-
     def post(self, request):
         serializers = IncomeCategorySerializer(data=request.data)
         if serializers.is_valid():
             serializers.save()
+        return Response(serializers.data)
+
+
+class IncomeDetailCategoryManagement(APIView):
+    def get(self, request, income_category_id):
+        income_category = IncomeCategory.objects.filter(id=income_category_id)
+        serializers = IncomeCategorySerializer(income_category, many=True)
         return Response(serializers.data)
 
     def put(self, request, income_category_id):
@@ -93,4 +95,4 @@ class IncomeCategoryManagement(APIView):
     def delete(self, request, income_category_id):
         item = get_object_or_404(IncomeCategory, id=income_category_id)
         item.delete()
-        return redirect(reverse("get_all_income_categories"))
+        return Response(status=status.HTTP_202_ACCEPTED)
