@@ -1,10 +1,8 @@
 import logging
 
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-
-# from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -22,11 +20,13 @@ class BudgetManagement(APIView):
         logger = logging.getLogger(__name__)
         budget_data = preprocess_budget_data(request)
         serializers = BudgetSerializer(data=budget_data)
-        if serializers.is_valid():
+        try:
+            serializers.is_valid(raise_exception=True)
             serializers.save()
-        else:
-            logger.warning("________ Data is invalid ________")
-        return Response(serializers.data)
+            return Response(serializers.data)
+        except ValidationError as e:
+            error_message = e.detail
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BudgetDetailManagement(APIView):
@@ -37,13 +37,14 @@ class BudgetDetailManagement(APIView):
 
     def put(self, request, budget_id):
         budget_data = Budget.objects.get(id=budget_id)
-        data = BudgetSerializer(instance=budget_data, data=request.data)
-        print("DATA:", data)
-        if data.is_valid():
-            data.save()
-            return Response(data.data)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializers = BudgetSerializer(instance=budget_data, data=request.data)
+        try:
+            serializers.is_valid(raise_exception=True)
+            serializers.save()
+            return Response(serializers.data)
+        except ValidationError as e:
+            error_message = e.detail
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, budget_id):
         item = get_object_or_404(Budget, id=budget_id)
@@ -71,9 +72,13 @@ class IncomeCategoryManagement(APIView):
 
     def post(self, request):
         serializers = IncomeCategorySerializer(data=request.data)
-        if serializers.is_valid():
+        try:
+            serializers.is_valid(raise_exception=True)
             serializers.save()
-        return Response(serializers.data)
+            return Response(serializers.data)
+        except ValidationError as e:
+            error_message = e.detail
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class IncomeDetailCategoryManagement(APIView):
@@ -84,13 +89,16 @@ class IncomeDetailCategoryManagement(APIView):
 
     def put(self, request, income_category_id):
         income_category = IncomeCategory.objects.get(id=income_category_id)
-        data = IncomeCategorySerializer(instance=income_category, data=request.data)
-        print("DATA:", data)
-        if data.is_valid():
-            data.save()
-            return Response(data.data)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializers = IncomeCategorySerializer(
+            instance=income_category, data=request.data
+        )
+        try:
+            serializers.is_valid(raise_exception=True)
+            serializers.save()
+            return Response(serializers.data)
+        except ValidationError as e:
+            error_message = e.detail
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, income_category_id):
         item = get_object_or_404(IncomeCategory, id=income_category_id)

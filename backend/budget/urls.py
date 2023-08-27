@@ -18,20 +18,5 @@ urlpatterns = [
         views.IncomeDetailCategoryManagement.as_view(),
         name="get_income_category_details",
     ),
-    # path(
-    #     "income_category",
-    #     views.add_income_category_details,
-    #     name="add_income_category_details",
-    # ),
-    # path(
-    #     "income_category/<int:income_category_id>",
-    #     views.update_income_category,
-    #     name="update_income_category",
-    # ),
-    # path(
-    #     "income_category/<int:income_category_id>",
-    #     views.delete_income_category,
-    #     name="delete_income_category",
-    # ),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
