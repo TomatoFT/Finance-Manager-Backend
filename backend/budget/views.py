@@ -23,7 +23,7 @@ class BudgetManagement(APIView):
         try:
             serializers.is_valid(raise_exception=True)
             serializers.save()
-            return Response(serializers.data)
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             error_message = e.detail
             return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
@@ -41,7 +41,7 @@ class BudgetDetailManagement(APIView):
         try:
             serializers.is_valid(raise_exception=True)
             serializers.save()
-            return Response(serializers.data)
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             error_message = e.detail
             return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
@@ -75,7 +75,7 @@ class IncomeCategoryManagement(APIView):
         try:
             serializers.is_valid(raise_exception=True)
             serializers.save()
-            return Response(serializers.data)
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             error_message = e.detail
             return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
@@ -95,7 +95,7 @@ class IncomeDetailCategoryManagement(APIView):
         try:
             serializers.is_valid(raise_exception=True)
             serializers.save()
-            return Response(serializers.data)
+            return Response(serializers.data, status=status.HTTP_201_CREATED)
         except ValidationError as e:
             error_message = e.detail
             return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
