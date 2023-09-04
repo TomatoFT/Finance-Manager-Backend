@@ -1,10 +1,5 @@
+from budget.models import Budget, IncomeCategory
 from django.contrib import admin
-
-from .models import Budget, IncomeCategory
-
-# Register your models here.
-
-# admin.site.register(Budget)
 
 
 class BudgetAdmin(admin.ModelAdmin):

@@ -1,9 +1,6 @@
 from budget.models import Budget
 from django.db import models
 
-# from notification.serializers import Notification
-# Create your models here.
-
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)

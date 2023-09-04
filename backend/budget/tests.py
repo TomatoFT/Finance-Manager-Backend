@@ -6,7 +6,6 @@ from budget.models import Budget, IncomeCategory
 from budget.serializers import BudgetSerializer
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.test import APIClient
 from user.models import User
@@ -33,7 +32,7 @@ class BudgetManagementTests(TestCase):
 
     def test_create_budget(self):
         url = reverse("Budget Management")
-        user, income_category = self.create_data()
+        _ = self.create_data()
         data = self.get_the_data_from_json_file(json_file_path=self.CREATE_TEST_PATH)
         data
         response = self.client.post(url, data)
@@ -47,7 +46,7 @@ class BudgetManagementTests(TestCase):
 
     def test_create_budget_with_invalid_data(self):
         url = reverse("Budget Management")
-        user, income_category = self.create_data()
+        _ = self.create_data()
         data = self.get_the_data_from_json_file(
             json_file_path=self.CREATE_INVALID_TEST_PATH
         )
@@ -57,15 +56,7 @@ class BudgetManagementTests(TestCase):
 
     def test_update_budget_with_invalid_data(self):
         url = reverse("Budget Management")
-        user, income_category = self.create_data()
-        budget = Budget.objects.create(
-            id=1,
-            name="Test Budget",
-            user=user,
-            income_category=income_category,
-            date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
-            amount=100,
-        )
+        budget = self.create_data(created_budget=True)
         url = reverse("Budget Detail Management", args=[budget.id])
         data = self.get_the_data_from_json_file(
             json_file_path=self.UPDATE_INVALID_TEST_PATH
@@ -75,15 +66,7 @@ class BudgetManagementTests(TestCase):
 
     def test_update_budget(self):
         url = reverse("Budget Management")
-        user, income_category = self.create_data()
-        budget = Budget.objects.create(
-            id=1,
-            name="Test Budget",
-            user=user,
-            income_category=income_category,
-            date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
-            amount=100,
-        )
+        budget = self.create_data(created_budget=True)
         url = reverse("Budget Detail Management", args=[budget.id])
         data = self.get_the_data_from_json_file(json_file_path=self.UPDATE_TEST_PATH)
         response = self.client.put(url, data)
@@ -98,34 +81,29 @@ class BudgetManagementTests(TestCase):
 
     def test_delete_budget(self):
         url = reverse("Budget Management")
-        user, income_category = self.create_data()
-        budget = Budget.objects.create(
-            id=1,
-            name="Test Budget",
-            user=user,
-            income_category=income_category,
-            date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
-            amount=100,
-        )
+        budget = self.create_data(created_budget=True)
         url = reverse("Budget Detail Management", args=[budget.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Budget.objects.count(), 0)
 
-    def create_data(self):
+    def create_data(self, created_budget=False):
         user = User.objects.create(
             id=1, username="abc", password="abc", email="abc@a.com", phone=121112222111
         )
         income_category = IncomeCategory.objects.create(id=1, source="Hello")
-        # budget = Budget.objects.create(
-        #     id=1,
-        #     user=user,
-        #     name="Test expense",
-        #     income_category=income_category,
-        #     amount=500000,
-        #     always_notify=True,
-        # )
-        return user, income_category
+        if created_budget:
+            budget = Budget.objects.create(
+                id=1,
+                name="Test Budget",
+                user=user,
+                income_category=income_category,
+                date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
+                amount=100,
+            )
+            return budget
+        else:
+            return logger.info("Create dummy data sucessfully")
 
     def get_the_data_from_json_file(self, json_file_path):
         with open(json_file_path, "r") as json_file:

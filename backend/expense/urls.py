@@ -1,10 +1,8 @@
 from django.urls import path
+from expense import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from . import views
-
 urlpatterns = [
-    # Expense CRUD perform
     path("", views.ExpenseManagement.as_view(), name="Expense Management"),
     path(
         "<int:expense_id>",
