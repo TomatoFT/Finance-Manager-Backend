@@ -34,7 +34,6 @@ class BudgetManagementTests(TestCase):
         url = reverse("Budget Management")
         _ = self.create_data()
         data = self.get_the_data_from_json_file(json_file_path=self.CREATE_TEST_PATH)
-        data
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         budget = Budget.objects.last()
@@ -84,7 +83,7 @@ class BudgetManagementTests(TestCase):
         budget = self.create_data(created_budget=True)
         url = reverse("Budget Detail Management", args=[budget.id])
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Budget.objects.count(), 0)
 
     def create_data(self, created_budget=False):

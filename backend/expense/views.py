@@ -87,4 +87,4 @@ class ExpenseCategoryDetailManagement(APIView):
     def delete(self, request, expense_category_id):
         matched_category = get_object_or_404(ExpenseCategory, id=expense_category_id)
         matched_category.delete()
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_204_NO_CONTENT)

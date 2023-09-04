@@ -45,4 +45,4 @@ class UserDetailManagement(APIView):
     def delete(self, request, user_id):
         matched_user = get_object_or_404(User, id=user_id)
         matched_user.delete()
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_204_NO_CONTENT)

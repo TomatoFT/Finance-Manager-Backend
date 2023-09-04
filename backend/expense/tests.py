@@ -30,7 +30,7 @@ class ExpenseManagementTests(TestCase):
 
     def test_create_expense(self):
         url = reverse("Expense Management")
-        _, budget = self.create_data()
+        budget = self.create_data()
         data = self.get_the_data_from_json_file(json_file_path=self.CREATE_TEST_PATH)
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -51,14 +51,7 @@ class ExpenseManagementTests(TestCase):
         self.assertEqual(Expense.objects.count(), 0)
 
     def test_update_expense(self):
-        expense_category, budget = self.create_data()
-        expense = Expense.objects.create(
-            id=1,
-            budget=budget,
-            expense_category=expense_category,
-            date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
-            amount=100,
-        )
+        budget, expense = self.create_data(create_expense=True)
         url = reverse("Expense Detail Management", args=[expense.id])
         data = self.get_the_data_from_json_file(json_file_path=self.UPDATE_TEST_PATH)
         response = self.client.put(url, data)
@@ -71,13 +64,7 @@ class ExpenseManagementTests(TestCase):
         self.assertEqual(budget.current_amount, budget.amount - data["amount"])
 
     def test_update_expense_with_invalid_data(self):
-        expense_category, budget = self.create_data()
-        expense = Expense.objects.create(
-            budget=budget,
-            expense_category=expense_category,
-            date="2022-01-01T00:00:00Z",
-            amount=100,
-        )
+        _, expense = self.create_data(create_expense=True)
         url = reverse("Expense Detail Management", args=[expense.id])
         data = self.get_the_data_from_json_file(
             json_file_path=self.UPDATE_INVALID_TEST_PATH
@@ -87,19 +74,13 @@ class ExpenseManagementTests(TestCase):
         expense.refresh_from_db()
 
     def test_delete_expense(self):
-        expense_category, budget = self.create_data()
-        expense = Expense.objects.create(
-            budget=budget,
-            expense_category=expense_category,
-            date="2022-01-01T00:00:00Z",
-            amount=100,
-        )
+        _, expense = self.create_data(create_expense=True)
         url = reverse("Expense Detail Management", args=[expense.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         self.assertEqual(Expense.objects.count(), 0)
 
-    def create_data(self):
+    def create_data(self, create_expense=False):
         user = User.objects.create(
             id=1, username="abc", password="abc", email="abc@a.com", phone=121112222111
         )
@@ -113,7 +94,16 @@ class ExpenseManagementTests(TestCase):
             amount=500000,
             always_notify=True,
         )
-        return expense_category, budget
+        if create_expense:
+            expense = Expense.objects.create(
+                budget=budget,
+                expense_category=expense_category,
+                date="2022-01-01T00:00:00Z",
+                amount=100,
+            )
+            return budget, expense
+        else:
+            return budget
 
     def get_the_data_from_json_file(self, json_file_path):
         with open(json_file_path, "r") as json_file:

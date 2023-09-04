@@ -1,0 +1,7 @@
+{
+    "id":2,
+    "username": "testuser",
+    "password": "testpassword",
+    "email": "invalid_email",
+    "phone": "1234567890"
+}

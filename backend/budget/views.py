@@ -1,5 +1,3 @@
-import logging
-
 from budget.models import Budget, IncomeCategory
 from budget.serializers import BudgetSerializer, IncomeCategorySerializer
 from django.shortcuts import get_object_or_404
@@ -16,9 +14,7 @@ class BudgetManagement(APIView):
         return Response(serializers.data)
 
     def post(self, request):
-        logger = logging.getLogger(__name__)
-        budget_data = preprocess_budget_data(request)
-        serializers = BudgetSerializer(data=budget_data)
+        serializers = BudgetSerializer(data=request.data)
         try:
             serializers.is_valid(raise_exception=True)
             serializers.save()
@@ -48,19 +44,7 @@ class BudgetDetailManagement(APIView):
     def delete(self, request, budget_id):
         item = get_object_or_404(Budget, id=budget_id)
         item.delete()
-        return Response(status=status.HTTP_200_OK)
-
-
-def preprocess_budget_data(request):
-    budget_data = {
-        "name": request.data["name"],
-        "amount": request.data["amount"],
-        "always_notify": request.data["always_notify"],
-        "user": request.data["user"],
-        "income_category": request.data["income_category"],
-    }
-
-    return budget_data
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class IncomeCategoryManagement(APIView):
@@ -95,11 +79,10 @@ class IncomeDetailCategoryManagement(APIView):
             serializers.is_valid(raise_exception=True)
             serializers.save()
             return Response(serializers.data, status=status.HTTP_201_CREATED)
-        except ValidationError as e:
-            error_message = e.detail
-            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, income_category_id):
         item = get_object_or_404(IncomeCategory, id=income_category_id)
         item.delete()
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_204_NO_CONTENT)
