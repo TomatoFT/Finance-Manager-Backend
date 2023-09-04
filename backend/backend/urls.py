@@ -32,9 +32,9 @@ from rest_framework import routers
 # router.register(r'messages', MessageViewSet)
 
 urlpatterns = [
-    path("admin", admin.site.urls),
-    path("notification", include("notification.urls")),
-    path("budget", include("budget.urls")),
-    path("user", include("user.urls")),
-    path("expense", include("expense.urls")),
+    path("admin/", admin.site.urls),
+    path("notification/", include("notification.urls")),
+    path("budget/", include("budget.urls")),
+    path("user/", include("user.urls")),
+    path("expense/", include("expense.urls")),
 ]

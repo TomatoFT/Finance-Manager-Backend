@@ -1,8 +1,8 @@
-from django.db import models
+from datetime import datetime
 
-# from user.models import User
-# from expense.models import Expense
-# from notification.models import Notification
+from django.db import models
+from django.utils.timezone import now
+from expense.models import Expense
 from notification.serializers import NoticationSerializer
 
 WARNING_BALANCE = 50000
@@ -23,7 +23,7 @@ class Budget(models.Model):
     income_category = models.ForeignKey(IncomeCategory, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=0)
     always_notify = models.BooleanField(default=True)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=now(), editable=True)
 
     def __str__(self):
         return f"Budget {self.name}"
@@ -32,8 +32,16 @@ class Budget(models.Model):
         email = {
             "budget_id": self.id,
             "content": f"Your {self.name} has the amount less than 50000. \
-                        The current amount is {self.amount}",
+                        The current amount is {self.current_amount}",
         }
         email_send = NoticationSerializer(data=email)
         if email_send.is_valid():
             email_send.save()
+
+    @property
+    def current_amount(self):
+        expense_list = Expense.objects.filter(budget=self)
+        total_spending = 0
+        for expense in expense_list:
+            total_spending += expense.amount
+        return self.amount - total_spending
