@@ -23,7 +23,7 @@ class Budget(models.Model):
     income_category = models.ForeignKey(IncomeCategory, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=0)
     always_notify = models.BooleanField(default=True)
-    date = models.DateTimeField(default=now(), editable=True)
+    date = models.DateTimeField(default=datetime.now(), editable=True)
 
     def __str__(self):
         return f"Budget {self.name}"

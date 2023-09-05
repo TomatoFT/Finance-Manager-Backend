@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime, timezone
 
@@ -14,16 +13,29 @@ logger = logging.getLogger(__name__)
 
 
 class BudgetManagementTests(TestCase):
-    CREATE_TEST_PATH = "budget/test/create_budget_test.json"
-    CREATE_INVALID_TEST_PATH = "budget/test/create_invalid_budget_test.json"
-    UPDATE_TEST_PATH = "budget/test/update_budget_test.json"
-    UPDATE_INVALID_TEST_PATH = "budget/test/update_invalid_budget_test.json"
-
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create(
+            id=1, username="abc", password="abc", email="abc@a.com", phone=121112222111
+        )
+        self.income_category = IncomeCategory.objects.create(id=1, source="Hello")
+        self.budget = Budget.objects.create(
+            name="Test Budget",
+            user=self.user,
+            income_category=self.income_category,
+            date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
+            amount=3000000,
+        )
+        self.budget_data = {
+            "name": "sssss",
+            "amount": 1500000,
+            "always_notify": True,
+            "user": 1,
+            "income_category": 1,
+        }
 
     def test_get_budgets(self):
-        url = reverse("Budget Management")
+        url = reverse("budget_management")
         response = self.client.get(url)
         expenses = Budget.objects.all()
         serializer = BudgetSerializer(expenses, many=True)
@@ -31,9 +43,8 @@ class BudgetManagementTests(TestCase):
         self.assertEqual(response.data, serializer.data)
 
     def test_create_budget(self):
-        url = reverse("Budget Management")
-        _ = self.create_data()
-        data = self.get_the_data_from_json_file(json_file_path=self.CREATE_TEST_PATH)
+        url = reverse("budget_management")
+        data = self.budget_data
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         budget = Budget.objects.last()
@@ -42,75 +53,39 @@ class BudgetManagementTests(TestCase):
         self.assertEqual(budget.user.id, data["user"])
         self.assertEqual(budget.always_notify, data["always_notify"])
         self.assertEqual(budget.amount, data["amount"])
+        self.assertEqual(Budget.objects.count(), 2)
 
     def test_create_budget_with_invalid_data(self):
-        url = reverse("Budget Management")
-        _ = self.create_data()
-        data = self.get_the_data_from_json_file(
-            json_file_path=self.CREATE_INVALID_TEST_PATH
-        )
+        url = reverse("budget_management")
+        data = self.budget_data
+        data["amount"] = -45555
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Budget.objects.count(), 0)
+        self.assertEqual(Budget.objects.count(), 1)
 
     def test_update_budget_with_invalid_data(self):
-        url = reverse("Budget Management")
-        budget = self.create_data(created_budget=True)
-        url = reverse("Budget Detail Management", args=[budget.id])
-        data = self.get_the_data_from_json_file(
-            json_file_path=self.UPDATE_INVALID_TEST_PATH
-        )
+        url = reverse("budget_detail_management", args=[self.budget.id])
+        data = self.budget_data
+        data["amount"] = -51111
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_budget(self):
-        url = reverse("Budget Management")
-        budget = self.create_data(created_budget=True)
-        url = reverse("Budget Detail Management", args=[budget.id])
-        data = self.get_the_data_from_json_file(json_file_path=self.UPDATE_TEST_PATH)
+        url = reverse("budget_detail_management", args=[self.budget.id])
+        data = self.budget_data
+        data["amount"] = 7000000  # Update valid data
         response = self.client.put(url, data)
+        # Perform Unit Testing
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        budget.refresh_from_db()
-        self.assertEqual(budget.name, data["name"])
-        self.assertEqual(budget.income_category.id, data["income_category"])
-        self.assertEqual(budget.user.id, data["user"])
-        self.assertEqual(budget.always_notify, data["always_notify"])
-        self.assertEqual(budget.date, datetime.fromisoformat(data["date"]))
-        self.assertEqual(budget.amount, data["amount"])
+        self.budget.refresh_from_db()
+        self.assertEqual(self.budget.name, data["name"])
+        self.assertEqual(self.budget.income_category.id, data["income_category"])
+        self.assertEqual(self.budget.user.id, data["user"])
+        self.assertEqual(self.budget.always_notify, data["always_notify"])
+        self.assertEqual(self.budget.amount, data["amount"])
 
     def test_delete_budget(self):
-        url = reverse("Budget Management")
-        budget = self.create_data(created_budget=True)
-        url = reverse("Budget Detail Management", args=[budget.id])
+        url = reverse("budget_detail_management", args=[self.budget.id])
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Budget.objects.count(), 0)
-
-    def create_data(self, created_budget=False):
-        user = User.objects.create(
-            id=1, username="abc", password="abc", email="abc@a.com", phone=121112222111
-        )
-        income_category = IncomeCategory.objects.create(id=1, source="Hello")
-        if created_budget:
-            budget = Budget.objects.create(
-                id=1,
-                name="Test Budget",
-                user=user,
-                income_category=income_category,
-                date=datetime(2022, 1, 1, 0, 0, tzinfo=timezone.utc).isoformat(),
-                amount=100,
-            )
-            return budget
-        else:
-            return logger.info("Create dummy data sucessfully")
-
-    def get_the_data_from_json_file(self, json_file_path):
-        with open(json_file_path, "r") as json_file:
-            data = json.load(json_file)
-        if "date" not in data:
-            return data
-        date_obj = datetime.fromisoformat(data["date"].replace("Z", "+00:00")).replace(
-            tzinfo=timezone.utc
-        )
-        data["date"] = date_obj.isoformat()
-        return data

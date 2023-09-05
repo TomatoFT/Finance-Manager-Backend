@@ -4,11 +4,11 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     # Budget CRUD handling
-    path("", views.BudgetManagement.as_view(), name="Budget Management"),
+    path("", views.BudgetManagement.as_view(), name="budget_management"),
     path(
         "<int:budget_id>",
         views.BudgetDetailManagement.as_view(),
-        name="Budget Detail Management",
+        name="budget_detail_management",
     ),
     # Income Category CRUD Handling
     path(
