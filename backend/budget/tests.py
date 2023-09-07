@@ -12,7 +12,7 @@ from user.models import User
 logger = logging.getLogger(__name__)
 
 
-class BudgetManagementTests(TestCase):
+class TestBudgetManagement(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create(
@@ -61,6 +61,12 @@ class BudgetManagementTests(TestCase):
         data["amount"] = -45555
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        logger.warn(
+            "Invalid data while performing POST method for create_budget function. {}".format(
+                response.content
+            )
+        )
+        self.assertEqual(Budget.objects.all()[0].id, self.budget.id)
         self.assertEqual(Budget.objects.count(), 1)
 
     def test_update_budget_with_invalid_data(self):
@@ -69,15 +75,20 @@ class BudgetManagementTests(TestCase):
         data["amount"] = -51111
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        logger.warn(
+            "Invalid data while performing PUT method for update_budget function. {}".format(
+                response.content
+            )
+        )
 
     def test_update_budget(self):
         url = reverse("budget_detail_management", args=[self.budget.id])
         data = self.budget_data
         data["amount"] = 7000000  # Update valid data
         response = self.client.put(url, data)
-        # Perform Unit Testing
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.budget.refresh_from_db()
+        # Perform Unit Testing
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.budget.name, data["name"])
         self.assertEqual(self.budget.income_category.id, data["income_category"])
         self.assertEqual(self.budget.user.id, data["user"])

@@ -57,7 +57,6 @@ class ExpenseManagementTests(TestCase):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         expense = Expense.objects.all().order_by("-id")[0]
-        logger.info(expense)
         # Perform Unit Test
         self.assertEqual(Expense.objects.count(), 2)
         self.assertEqual(expense.budget.id, data["budget"])
@@ -72,11 +71,17 @@ class ExpenseManagementTests(TestCase):
     def test_create_expense_with_invalid_data(self):
         url = reverse("expense_management")
         data = self.handle_the_time_data(data=self.expense_data)
-        data["amount"] = -2000
+        data["amount"] = -2000  # Invalid data
         response = self.client.post(url, data)
         # Perform Unit Test
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        logger.warn(
+            "Invalid data while performing POST method for create_expense function. {}".format(
+                response.content
+            )
+        )
         self.assertEqual(Expense.objects.count(), 1)
+        self.assertEqual(Expense.objects.all()[0].id, self.expense.id)
 
     def test_update_expense(self):
         url = reverse("expense_detail_management", args=[self.expense.id])
@@ -85,7 +90,6 @@ class ExpenseManagementTests(TestCase):
         expense = Expense.objects.get(id=self.expense.id)
         # Perform Unit Test
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.expense.refresh_from_db()
         self.assertEqual(expense.budget.id, data["budget"])
         self.assertEqual(expense.expense_category.id, data["expense_category"])
         self.assertEqual(expense.date, datetime.fromisoformat(data["date"]))
@@ -101,12 +105,17 @@ class ExpenseManagementTests(TestCase):
         # Perform Unit Test
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        logger.warn(
+            "Invalid data while performing PUT method for update_expense function. {}".format(
+                response.content
+            )
+        )
 
     def test_delete_expense(self):
         url = reverse("expense_detail_management", args=[self.expense.id])
         response = self.client.delete(url)
         # Perform Unit Test
-        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Expense.objects.count(), 0)
 
     def handle_the_time_data(self, data):

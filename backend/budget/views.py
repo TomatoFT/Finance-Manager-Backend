@@ -10,79 +10,76 @@ from rest_framework.views import APIView
 class BudgetManagement(APIView):
     def get(self, request):
         budgets_list = Budget.objects.all()
-        serializers = BudgetSerializer(budgets_list, many=True)
-        return Response(serializers.data)
+        serializer = BudgetSerializer(budgets_list, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
-        serializers = BudgetSerializer(data=request.data)
+        serializer = BudgetSerializer(data=request.data)
         try:
-            serializers.is_valid(raise_exception=True)
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
-        except ValidationError as e:
-            error_message = e.detail
-            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BudgetDetailManagement(APIView):
     def get(self, request, budget_id):
         budget_details = Budget.objects.filter(id=budget_id)
-        serializers = BudgetSerializer(budget_details, many=True)
-        return Response(serializers.data)
+        serializer = BudgetSerializer(budget_details, many=True)
+        return Response(serializer.data)
 
     def put(self, request, budget_id):
-        budget_data = Budget.objects.get(id=budget_id)
-        serializers = BudgetSerializer(instance=budget_data, data=request.data)
+        budget_data = get_object_or_404(Budget, id=budget_id)
+        serializer = BudgetSerializer(instance=budget_data, data=request.data)
         try:
-            serializers.is_valid(raise_exception=True)
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
-        except ValidationError as e:
-            error_message = e.detail
-            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, budget_id):
-        item = get_object_or_404(Budget, id=budget_id)
-        item.delete()
+        matched_budget = get_object_or_404(Budget, id=budget_id)
+        matched_budget.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class IncomeCategoryManagement(APIView):
     def get(self, request):
         income_categories_list = IncomeCategory.objects.all()
-        serializers = IncomeCategorySerializer(income_categories_list, many=True)
-        return Response(serializers.data)
+        serializer = IncomeCategorySerializer(income_categories_list, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
-        serializers = IncomeCategorySerializer(data=request.data)
+        serializer = IncomeCategorySerializer(data=request.data)
         try:
-            serializers.is_valid(raise_exception=True)
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
-        except ValidationError as e:
-            error_message = e.detail
-            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class IncomeDetailCategoryManagement(APIView):
     def get(self, request, income_category_id):
         income_category = IncomeCategory.objects.filter(id=income_category_id)
-        serializers = IncomeCategorySerializer(income_category, many=True)
-        return Response(serializers.data)
+        serializer = IncomeCategorySerializer(income_category, many=True)
+        return Response(serializer.data)
 
     def put(self, request, income_category_id):
-        income_category = IncomeCategory.objects.get(id=income_category_id)
-        serializers = IncomeCategorySerializer(
+        income_category = get_object_or_404(IncomeCategory, id=income_category_id)
+        serializer = IncomeCategorySerializer(
             instance=income_category, data=request.data
         )
         try:
-            serializers.is_valid(raise_exception=True)
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_201_CREATED)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as error_message:
             return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, income_category_id):
-        item = get_object_or_404(IncomeCategory, id=income_category_id)
-        item.delete()
+        matched_budghet = get_object_or_404(IncomeCategory, id=income_category_id)
+        matched_budghet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

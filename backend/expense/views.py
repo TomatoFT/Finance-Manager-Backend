@@ -44,7 +44,7 @@ class ExpenseDetailManagement(APIView):
     def delete(self, request, expense_id):
         matched_expense = get_object_or_404(Expense, id=expense_id)
         matched_expense.delete()
-        return Response(status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # CRUD ON EXPENSE CATEGORY TABLE
@@ -79,7 +79,7 @@ class ExpenseCategoryDetailManagement(APIView):
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
         except ValidationError as e:
             error_message = e.detail
             return Response(error_message, status=status.HTTP_400_BAD_REQUEST)

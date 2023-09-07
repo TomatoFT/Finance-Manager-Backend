@@ -1,6 +1,5 @@
 from budget import views
 from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     # Budget CRUD handling
@@ -14,12 +13,11 @@ urlpatterns = [
     path(
         "income",
         views.IncomeCategoryManagement.as_view(),
-        name="get_all_income_categories",
+        name="income_category_management",
     ),
     path(
         "income/<int:income_category_id>",
         views.IncomeDetailCategoryManagement.as_view(),
-        name="get_income_category_details",
+        name="income_detail_category_management",
     ),
 ]
-urlpatterns = format_suffix_patterns(urlpatterns)
