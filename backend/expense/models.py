@@ -1,6 +1,5 @@
 import logging
 
-# from budget.models import Budget
 from django.db import models
 from notification.models import Notification
 
@@ -25,7 +24,7 @@ class Expense(models.Model):
     amount = models.PositiveIntegerField()
 
     def __str__(self) -> str:
-        return super().__str__()
+        return self.expense_category.name + " " + self.budget.name
 
     def is_send_alert_email(self):
         notification_list = Notification.objects.filter(budget=self.budget)

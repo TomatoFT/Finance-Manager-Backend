@@ -1,6 +1,5 @@
 from django.urls import path
 from expense import views
-from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path("", views.ExpenseManagement.as_view(), name="expense_management"),
@@ -20,4 +19,3 @@ urlpatterns = [
         name="expense_category_detail_management",
     ),
 ]
-urlpatterns = format_suffix_patterns(urlpatterns)
