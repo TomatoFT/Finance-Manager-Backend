@@ -6,7 +6,7 @@ from django.db import models
 class User(models.Model):
     id = models.AutoField(primary_key=True)
     # user=models.OneToOneField(User_Auth,on_delete=models.CASCADE, null=True, blank=True)
-    username = models.TextField()
+    username = models.TextField(unique=True)
     password = models.TextField()
     email = models.EmailField()
     phone = models.CharField(max_length=12)
