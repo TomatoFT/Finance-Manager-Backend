@@ -173,7 +173,7 @@ class ExpenseManagementTests(TestCase):
         the correct timezone information.
 
         Args:
-            data (dict): The data dictionary containing the date string.
+            data (dict): The data for the budget from user.
 
         Returns:
             dict: The updated data dictionary with the converted date.
