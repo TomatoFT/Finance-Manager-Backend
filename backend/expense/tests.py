@@ -1,3 +1,10 @@
+"""
+Expense Management Tests
+
+This module contains unit tests for the expense management functionality.
+
+"""
+
 import logging
 from datetime import datetime, timezone
 
@@ -15,6 +22,12 @@ logger = logging.getLogger(__name__)
 
 class ExpenseManagementTests(TestCase):
     def setUp(self):
+        """
+        Set up the test environment.
+
+        This method creates the necessary objects for testing the expense management functionality.
+
+        """
         self.client = APIClient()
         self.user = User.objects.create(
             id=1, username="abc", password="abc", email="abc@a.com", phone=121112222111
@@ -43,6 +56,13 @@ class ExpenseManagementTests(TestCase):
         }
 
     def test_get_expenses(self):
+        """
+        Test the retrieval of expenses.
+
+        This method tests the GET request to retrieve all expenses and compares the response
+        with the expected serialized data.
+
+        """
         url = reverse("expense_management")
         response = self.client.get(url)
         expenses = Expense.objects.all()
@@ -52,6 +72,13 @@ class ExpenseManagementTests(TestCase):
         self.assertEqual(response.data, serializer.data)
 
     def test_create_expense(self):
+        """
+        Test the creation of an expense.
+
+        This method tests the POST request to create a new expense and verifies that the
+        expense is created with the correct data.
+
+        """
         url = reverse("expense_management")
         data = self.handle_the_time_data(data=self.expense_data)
         response = self.client.post(url, data)
@@ -69,21 +96,31 @@ class ExpenseManagementTests(TestCase):
         )
 
     def test_create_expense_with_invalid_data(self):
+        """
+        Test the creation of an expense with invalid data.
+
+        This method tests the POST request to create a new expense with invalid data and verifies
+        that the appropriate error response is returned.
+
+        """
         url = reverse("expense_management")
         data = self.handle_the_time_data(data=self.expense_data)
         data["amount"] = -2000  # Invalid data
         response = self.client.post(url, data)
         # Perform Unit Test
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        logger.warn(
-            "Invalid data while performing POST method for create_expense function. {}".format(
-                response.content
-            )
-        )
+        self.assertEqual(response.content,  b'{"amount":["Ensure this value is greater than or equal to 0."]}')
         self.assertEqual(Expense.objects.count(), 1)
         self.assertEqual(Expense.objects.all()[0].id, self.expense.id)
 
     def test_update_expense(self):
+        """
+        Test the update of an expense.
+
+        This method tests the PUT request to update an existing expense and verifies that the
+        expense is updated with the correct data.
+
+        """
         url = reverse("expense_detail_management", args=[self.expense.id])
         data = self.handle_the_time_data(data=self.expense_data)
         response = self.client.put(url, data)
@@ -99,19 +136,29 @@ class ExpenseManagementTests(TestCase):
         )
 
     def test_update_expense_with_invalid_data(self):
+        """
+        Test the update of an expense with invalid data.
+
+        This method tests the PUT request to update an existing expense with invalid data and
+        verifies that the appropriate error response is returned.
+
+        """
         url = reverse("expense_detail_management", args=[self.expense.id])
         data = self.handle_the_time_data(data=self.expense_data)
         data["amount"] = -2000  # Invalid data
         # Perform Unit Test
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        logger.warn(
-            "Invalid data while performing PUT method for update_expense function. {}".format(
-                response.content
-            )
-        )
+        self.assertEqual(response.content,  b'{"amount":["Ensure this value is greater than or equal to 0."]}')
 
     def test_delete_expense(self):
+        """
+        Test the deletion of an expense.
+
+        This method tests the DELETE request to delete an existing expense and verifies that
+        the expense is deleted successfully.
+
+        """
         url = reverse("expense_detail_management", args=[self.expense.id])
         response = self.client.delete(url)
         # Perform Unit Test
@@ -119,6 +166,19 @@ class ExpenseManagementTests(TestCase):
         self.assertEqual(Expense.objects.count(), 0)
 
     def handle_the_time_data(self, data):
+        """
+        Handle the time data.
+
+        This method converts the date string in the data dictionary to a datetime object with
+        the correct timezone information.
+
+        Args:
+            data (dict): The data dictionary containing the date string.
+
+        Returns:
+            dict: The updated data dictionary with the converted date.
+
+        """
         date_obj = datetime.fromisoformat(data["date"].replace("Z", "+00:00")).replace(
             tzinfo=timezone.utc
         )
