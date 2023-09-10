@@ -28,7 +28,7 @@ class BudgetManagement(APIView):
     """
 
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    # authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         """
