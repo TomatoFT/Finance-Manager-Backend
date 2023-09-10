@@ -38,7 +38,20 @@ class UserLogoutView(APIView):
         logger.warn(refresh_token)
         try:
             token = RefreshToken(refresh_token)
+            logger.warn(token)
             token.blacklist()
             return Response({'message': 'Logout successful'})
+        except Exception as e:
+            return Response({'error': 'Invalid token'}, status=400)
+
+
+class RefreshTokenView(APIView):
+    def post(self, request):
+        refresh_token = request.data.get('refresh_token')
+
+        try:
+            token = RefreshToken(refresh_token)
+            access_token = str(token.access_token)
+            return Response({'access_token': access_token})
         except Exception as e:
             return Response({'error': 'Invalid token'}, status=400)
