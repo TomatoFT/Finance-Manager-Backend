@@ -1,32 +1,16 @@
 from django.urls import path
-
-from . import views
+from user import views
 
 urlpatterns = [
     # User CRUD handling
     path(
         "",
-        views.get_all_users_informations,
-        name="get_all_users_informations",
+        views.UserManagement.as_view(),
+        name="user_management",
     ),
     path(
         "<int:user_id>",
-        views.get_user,
-        name="get_user",
-    ),
-    path(
-        "add",
-        views.add_user,
-        name="add_user",
-    ),
-    path(
-        "update/<int:user_id>",
-        views.update_user,
-        name="update_user",
-    ),
-    path(
-        "delete/<int:user_id>",
-        views.delete_user,
-        name="delete_user",
+        views.UserDetailManagement.as_view(),
+        name="user_detail_management",
     ),
 ]

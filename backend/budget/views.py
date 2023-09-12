@@ -1,110 +1,263 @@
-import logging
+"""
+Budget Management API
 
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+This module contains API views for managing budgets and income categories.
+
+"""
+
+from budget.models import Budget, IncomeCategory
+from budget.serializers import BudgetSerializer, IncomeCategorySerializer
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-
-from .models import Budget, IncomeCategory
-from .serializers import BudgetSerializer, IncomeCategorySerializer
+from rest_framework.views import APIView
 
 
-# CRUD ON BUDGET
-@api_view(["GET"])
-def get_all_budgets(request):
-    budgets_list = Budget.objects.all()
-    serializers = BudgetSerializer(budgets_list, many=True)
-    return Response(serializers.data)
+class BudgetManagement(APIView):
+    """
+    API view for managing budgets.
+
+    This view allows retrieving all budgets, creating a new budget, and handling
+    individual budget details.
+
+    """
+
+    def get(self, request):
+        """
+        Retrieve all budgets.
+
+        This method retrieves all budgets and returns a serialized representation of the data.
+
+        Returns:
+            Response: Serialized data of all budgets.
+
+        """
+
+        budgets_list = Budget.objects.all()
+        serializer = BudgetSerializer(budgets_list, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Create a new budget.
+
+        This method creates a new budget based on the provided data and returns the serialized
+        representation of the created budget.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: Serialized data of the created budget.
+
+        """
+
+        serializer = BudgetSerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
-def get_budget_details(request, budget_id):
-    budget_details = Budget.objects.filter(id=budget_id)
-    serializers = BudgetSerializer(budget_details, many=True)
-    return Response(serializers.data)
+class BudgetDetailManagement(APIView):
+    """
+    API view for managing individual budget details.
+
+    This view allows retrieving, updating, and deleting individual budget details.
+
+    """
+
+    def get(self, request, budget_id):
+        """
+        Retrieve a specific budget.
+
+        This method retrieves a specific budget based on the provided budget ID and returns
+        a serialized representation of the budget.
+
+        Args:
+            request (Request): The HTTP request object.
+            budget_id (int): The ID of the budget to retrieve.
+
+        Returns:
+            Response: Serialized data of the retrieved budget.
+
+        """
+
+        budget_details = Budget.objects.filter(id=budget_id)
+        serializer = BudgetSerializer(budget_details, many=True)
+        return Response(serializer.data)
+
+    def put(self, request, budget_id):
+        """
+        Update a specific budget.
+
+        This method updates a specific budget based on the provided budget ID and data, and
+        returns the serialized representation of the updated budget.
+
+        Args:
+            request (Request): The HTTP request object.
+            budget_id (int): The ID of the budget to update.
+
+        Returns:
+            Response: Serialized data of the updated budget and
+            the suitable status for the request.
+
+        """
+
+        budget_data = get_object_or_404(Budget, id=budget_id)
+        serializer = BudgetSerializer(instance=budget_data, data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, budget_id):
+        """
+        Delete a specific budget.
+
+        This method deletes a specific budget based on the provided budget ID.
+
+        Args:
+            request (Request): The HTTP request object.
+            budget_id (int): The ID of the budget to delete.
+
+        Returns:
+            Response: Empty response with status code 204 (No Content).
+
+        """
+
+        matched_budget = get_object_or_404(Budget, id=budget_id)
+        matched_budget.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(["POST"])
-def add_budget_details(request):
-    logger = logging.getLogger(__name__)
-    budget_data = preprocess_budget_data(request)
-    serializers = BudgetSerializer(data=budget_data)
-    if serializers.is_valid():
-        serializers.save()
-    else:
-        logger.warning("________ Data is invalid ________")
-    return Response(serializers.data)
+class IncomeCategoryManagement(APIView):
+    """
+    API view for managing income categories.
+
+    This view allows retrieving all income categories, creating a new income category, and
+    handling individual income category details.
+
+    """
+
+    def get(self, request):
+        """
+        Retrieve all income categories.
+
+        This method retrieves all income categories and returns a serialized representation
+        of the data.
+
+        Returns:
+            Response: Serialized data of all income categories.
+
+        """
+
+        income_categories_list = IncomeCategory.objects.all()
+        serializer = IncomeCategorySerializer(income_categories_list, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Create a new income category.
+
+        This method creates a new income category based on the provided data and returns the
+        serialized representation of the created income category.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: Serialized data of the created income category and
+            the suitable status for the request.
+
+        """
+
+        serializer = IncomeCategorySerializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
 
-def preprocess_budget_data(request):
-    budget_data = {
-        "budget_name": request.data["budget_name"],
-        "amount": request.data["amount"],
-        "always_notify": request.data["always_notify"],
-        "user_id": request.data["user_id"],
-        "income_category_id": request.data["income_category_id"],
-    }
+class IncomeDetailCategoryManagement(APIView):
+    """
+    API view for managing individual income category details.
 
-    return budget_data
+    This view allows retrieving, updating, and deleting individual income category details.
 
+    """
 
-@api_view(["PUT"])
-def update_budget_data(request, budget_id):
-    budget_data = Budget.objects.get(id=budget_id)
-    data = BudgetSerializer(instance=budget_data, data=request.data)
-    print("DATA:", data)
-    if data.is_valid():
-        data.save()
-        return Response(data.data)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    def get(self, request, income_category_id):
+        """
+        Retrieve a specific income category.
 
+        This method retrieves a specific income category based on the provided income category ID
+        and returns a serialized representation of the income category.
 
-@api_view(["DELETE", "GET"])
-def delete_budget_data(request, budget_id):
-    item = get_object_or_404(Budget, id=budget_id)
-    item.delete()
-    return redirect(reverse("get_all_budgets"))
+        Args:
+            request (Request): The HTTP request object.
+            income_category_id (int): The ID of the income category to retrieve.
 
+        Returns:
+            Response: Serialized data of the retrieved income category.
 
-# CRUD ON INCOME CATEGORY TABLE
-@api_view(["GET"])
-def get_all_income_categories(request):
-    income_categories_list = IncomeCategory.objects.all()
-    serializers = IncomeCategorySerializer(income_categories_list, many=True)
-    return Response(serializers.data)
+        """
 
+        income_category = IncomeCategory.objects.filter(id=income_category_id)
+        serializer = IncomeCategorySerializer(income_category, many=True)
+        return Response(serializer.data)
 
-@api_view(["GET"])
-def get_income_category_details(request, income_category_id):
-    income_category = IncomeCategory.objects.filter(id=income_category_id)
-    serializers = IncomeCategorySerializer(income_category, many=True)
-    return Response(serializers.data)
+    def put(self, request, income_category_id):
+        """
+        Update a specific income category.
 
+        This method updates a specific income category based on the provided income category ID
+        and data, and returns the serialized representation of the updated income category.
 
-@api_view(["POST"])
-def add_income_category_details(request):
-    serializers = IncomeCategorySerializer(data=request.data)
-    if serializers.is_valid():
-        serializers.save()
-    return Response(serializers.data)
+        Args:
+            request (Request): The HTTP request object.
+            income_category_id (int): The ID of the income category to update.
 
+        Returns:
+            Response: Serialized data of the updated income category and
+            the suitable status for the request.
 
-@api_view(["PUT"])
-def update_income_category(request, income_category_id):
-    income_category = IncomeCategory.objects.get(id=income_category_id)
-    data = IncomeCategorySerializer(instance=income_category, data=request.data)
-    print("DATA:", data)
-    if data.is_valid():
-        data.save()
-        return Response(data.data)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        """
 
+        income_category = get_object_or_404(IncomeCategory, id=income_category_id)
+        serializer = IncomeCategorySerializer(
+            instance=income_category, data=request.data
+        )
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as error_message:
+            return Response(error_message.detail, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["DELETE", "GET"])
-def delete_income_category(request, income_category_id):
-    item = get_object_or_404(IncomeCategory, id=income_category_id)
-    item.delete()
-    return redirect(reverse("get_all_income_categories"))
+    def delete(self, request, income_category_id):
+        """
+        Delete a specific income category.
+
+        This method deletes a specific income category based on the provided income category ID.
+
+        Args:
+            request (Request): The HTTP request object.
+            income_category_id (int): The ID of the income category to delete.
+
+        Returns:
+            Response: Empty response with status code 204 (No Content)
+            and status code 404 if the data is not found in database.
+
+        """
+
+        matched_income_category = get_object_or_404(IncomeCategory, id=income_category_id)
+        matched_income_category.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

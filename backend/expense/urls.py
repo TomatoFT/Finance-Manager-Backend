@@ -1,50 +1,21 @@
 from django.urls import path
-
-from . import views
+from expense import views
 
 urlpatterns = [
-    # Budget CRUD handling
-    path("", views.get_all_expenses, name="get_all_expenses"),
+    path("", views.ExpenseManagement.as_view(), name="expense_management"),
     path(
         "<int:expense_id>",
-        views.get_expense_details,
-        name="get_expense_details",
-    ),
-    path("add", views.add_expense_details, name="add_expense_data"),
-    path(
-        "update/<int:expense_id>",
-        views.update_expense_data,
-        name="update_expense_data",
+        views.ExpenseDetailManagement.as_view(),
+        name="expense_detail_management",
     ),
     path(
-        "delete/<int:expense_id>",
-        views.delete_expense_data,
-        name="delete_expense_data",
-    ),
-    # Expense Category CRUD Handling
-    path(
-        "expense_category",
-        views.get_all_expense_categories,
-        name="get_all_expense_categories",
+        "category",
+        views.ExpenseCategoryManagement.as_view(),
+        name="expense_category_management",
     ),
     path(
-        "expense_category/<int:expense_category_id>",
-        views.get_expense_category_details,
-        name="get_expense_category_details",
-    ),
-    path(
-        "expense_category/add",
-        views.add_expense_category_details,
-        name="add_expense_category_details",
-    ),
-    path(
-        "expense_category/update/<int:expense_category_id>",
-        views.update_expense_category,
-        name="update_expense_category",
-    ),
-    path(
-        "expense_category/delete/<int:expense_category_id>",
-        views.delete_expense_category,
-        name="delete_expense_category",
+        "category/<int:expense_category_id>",
+        views.ExpenseCategoryDetailManagement.as_view(),
+        name="expense_category_detail_management",
     ),
 ]

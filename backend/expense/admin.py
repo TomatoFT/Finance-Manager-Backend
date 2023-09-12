@@ -1,6 +1,5 @@
 from django.contrib import admin
-
-from .models import Expense, ExpenseCategory
+from expense.models import Expense, ExpenseCategory
 
 # Register your models here.
 admin.site.register(Expense)

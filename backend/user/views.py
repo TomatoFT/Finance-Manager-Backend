@@ -1,50 +1,48 @@
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-
-from .models import User
-from .serializers import UserSerializers
+from rest_framework.views import APIView
+from user.models import User
+from user.serializers import UserSerializers
 
 
 # Perform CRUD in User
-@api_view(["GET"])
-def get_all_users_informations(request):
-    users_list = User.objects.all()
-    serializers = UserSerializers(users_list, many=True)
-    return Response(serializers.data)
+class UserManagement(APIView):
+    def get(self, request):
+        users_list = User.objects.all()
+        serializer = UserSerializers(users_list, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = UserSerializers(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            error_message = e.detail
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
-def get_user(request, user_id):
-    user = User.objects.filter(user_id=user_id)
-    serializers = UserSerializers(user, many=True)
-    return Response(serializers.data)
+class UserDetailManagement(APIView):
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        serializer = UserSerializers(user)
+        return Response(serializer.data)
 
+    def put(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        serializer = UserSerializers(instance=user, data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            error_message = e.detail
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["POST"])
-def add_user(request):
-    serializers = UserSerializers(data=request.data)
-    if serializers.is_valid():
-        serializers.save()
-    return Response(serializers.data)
-
-
-@api_view(["PUT"])
-def update_user(request, user_id):
-    income_category = User.objects.get(user_id=user_id)
-    data = UserSerializers(instance=income_category, data=request.data)
-    print("DATA:", data)
-    if data.is_valid():
-        data.save()
-        return Response(data.data)
-    else:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(["DELETE", "GET"])
-def delete_user(request, user_id):
-    item = get_object_or_404(User, user_id=user_id)
-    item.delete()
-    return redirect(reverse("get_all_income_categories"))
+    def delete(self, request, user_id):
+        matched_user = get_object_or_404(User, id=user_id)
+        matched_user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
