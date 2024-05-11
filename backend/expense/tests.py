@@ -30,7 +30,11 @@ class ExpenseManagementTests(TestCase):
         """
         self.client = APIClient()
         self.user = User.objects.create(
-            id=1, username="abc", password="abc", email="abc@a.com", phone=121112222111
+            id=1,
+            username="abc",
+            password="abc",
+            email="abc@a.com",
+            phone=121112222111
         )
         self.income_category = IncomeCategory.objects.create(id=1, source="Hello")
         self.expense_category = ExpenseCategory.objects.create(id=1, name="Hello")

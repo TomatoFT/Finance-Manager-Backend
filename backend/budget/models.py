@@ -19,7 +19,7 @@ class IncomeCategory(models.Model):
 class Budget(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey("user.User", on_delete=models.CASCADE)
-    name = models.TextField()
+    name = models.TextField(unique=True)
     income_category = models.ForeignKey(IncomeCategory, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=0)
     always_notify = models.BooleanField(default=True)

@@ -1,10 +1,12 @@
 from budget.models import Budget
+from django.contrib.auth.models import User as User_Auth
 from django.db import models
 
 
 class User(models.Model):
     id = models.AutoField(primary_key=True)
-    username = models.TextField()
+    # user=models.OneToOneField(User_Auth,on_delete=models.CASCADE, null=True, blank=True)
+    username = models.TextField(unique=True)
     password = models.TextField()
     email = models.EmailField()
     phone = models.CharField(max_length=12)

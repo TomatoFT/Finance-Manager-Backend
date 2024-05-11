@@ -4,15 +4,18 @@ Budget Management API
 This module contains API views for managing budgets and income categories.
 
 """
+import logging
 
 from budget.models import Budget, IncomeCategory
 from budget.serializers import BudgetSerializer, IncomeCategorySerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+logger = logging.getLogger(__name__)
 
 class BudgetManagement(APIView):
     """
@@ -22,6 +25,8 @@ class BudgetManagement(APIView):
     individual budget details.
 
     """
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
@@ -36,6 +41,7 @@ class BudgetManagement(APIView):
 
         budgets_list = Budget.objects.all()
         serializer = BudgetSerializer(budgets_list, many=True)
+        logger.info("{} -- {}".format(request.user, request.auth))
         return Response(serializer.data)
 
     def post(self, request):
@@ -52,8 +58,9 @@ class BudgetManagement(APIView):
             Response: Serialized data of the created budget.
 
         """
-
-        serializer = BudgetSerializer(data=request.data)
+        data = request.data
+        data["user"] = request.user.id
+        serializer = BudgetSerializer(data=data)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
