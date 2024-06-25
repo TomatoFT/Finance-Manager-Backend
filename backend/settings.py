@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://frontend:4200",  # Replace with your frontend URL
+    "http://localhost:4200",  # Replace with your frontend URL
 ]
 
 # Internationalization
