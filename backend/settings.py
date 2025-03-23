@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
 
 DJANGO_SUPERUSER_USERNAME = "admin"
 DJANGO_SUPERUSER_PASSWORD = "admin"
+DJANGO_SUPERUSER_EMAIL = "admin@finmapp.com"
 
 # Application definition
 
@@ -95,9 +96,9 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "postgres",
         "USER": "postgres",
-        "PASSWORD": "password",
+        "PASSWORD": "postgres",
         "HOST": "db",
-        "PORT": 5432,
+        "PORT": 5432
     }
 }
 

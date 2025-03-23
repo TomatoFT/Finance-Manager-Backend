@@ -12,6 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # RUN python manage.py makemigrations
 # RUN python manage.py migrate
 
+RUN apt-get update && apt install -y iputils-ping
+
 # Copy the entire Django project to the container
 COPY . .
 
